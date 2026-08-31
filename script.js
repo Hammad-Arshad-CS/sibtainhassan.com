@@ -59,11 +59,11 @@ updateThemeIcon(currentTheme);
 themeToggle.addEventListener('click', () => {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme);
-    
+
     // Add animation effect
     themeToggle.style.transform = 'rotate(360deg)';
     setTimeout(() => {
@@ -89,13 +89,13 @@ let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
-    
+
     if (currentScroll > 100) {
         navbar.classList.add('scrolled');
     } else {
         navbar.classList.remove('scrolled');
     }
-    
+
     lastScroll = currentScroll;
 });
 
@@ -104,12 +104,12 @@ window.addEventListener('scroll', () => {
 // ============================================
 function activateNavLink() {
     const scrollY = window.pageYOffset;
-    
+
     sections.forEach(section => {
         const sectionHeight = section.offsetHeight;
         const sectionTop = section.offsetTop - 100;
         const sectionId = section.getAttribute('id');
-        
+
         if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
             navLinks.forEach(link => {
                 link.classList.remove('active');
@@ -130,7 +130,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
         if (href === '#') return;
-        
+
         e.preventDefault();
         const target = document.querySelector(href);
         if (target) {
@@ -166,17 +166,17 @@ scrollTopBtn.addEventListener('click', () => {
 // ============================================
 serviceSearch.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase().trim();
-    
+
     if (searchTerm) {
         searchClear.style.display = 'block';
     } else {
         searchClear.style.display = 'none';
     }
-    
+
     serviceCards.forEach(card => {
         const title = card.querySelector('h3').textContent.toLowerCase();
         const description = card.querySelector('p').textContent.toLowerCase();
-        
+
         if (title.includes(searchTerm) || description.includes(searchTerm)) {
             card.classList.remove('hidden');
             card.style.animation = 'fadeInUp 0.5s ease';
@@ -184,7 +184,7 @@ serviceSearch.addEventListener('input', (e) => {
             card.classList.add('hidden');
         }
     });
-    
+
     // Show message if no results
     const visibleCards = Array.from(serviceCards).filter(card => !card.classList.contains('hidden'));
     if (visibleCards.length === 0 && searchTerm) {
@@ -210,7 +210,7 @@ dateInput.setAttribute('min', today);
 
 appointmentForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     // Get form data
     const formData = {
         fullName: document.getElementById('fullName').value.trim(),
@@ -222,18 +222,18 @@ appointmentForm.addEventListener('submit', (e) => {
         place: document.getElementById('place').value,
         message: document.getElementById('message').value.trim()
     };
-    
+
     // Validate form
     if (!validateForm(formData)) {
         return;
     }
-    
+
     // Show loading state
     const submitBtn = appointmentForm.querySelector('.btn-submit');
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
     submitBtn.disabled = true;
-    
+
     // Build WhatsApp URL and open it after a short delay
     setTimeout(() => {
         // Create WhatsApp message
@@ -246,25 +246,25 @@ appointmentForm.addEventListener('submit', (e) => {
             `Place: ${formData.place}\n` +
             `Service: ${getServiceName(formData.service)}\n` +
             (formData.message ? `Message: ${formData.message}` : '');
-        
+
         const phoneNumber = '03158595790';
         const encodedMessage = encodeURIComponent(whatsappMessage);
         const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodedMessage}&type=phone_number&app_absent=0`;
-        
+
         // Update floating WhatsApp button href so it stays in sync
         const whatsappBtn = document.querySelector('.whatsapp-btn');
         whatsappBtn.setAttribute('href', whatsappUrl);
-        
+
         // Open WhatsApp with pre-filled message in a new tab
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-        
+
         // Show success message
         showToast('Appointment request submitted! WhatsApp is opening with your details.', 'success');
-        
+
         // Reset form
         appointmentForm.reset();
         dateInput.setAttribute('min', today);
-        
+
         // Reset button
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
@@ -277,59 +277,59 @@ function validateForm(data) {
         showToast('Please enter a valid name (at least 2 characters).', 'error');
         return false;
     }
-    
+
     // Validate phone
     const phoneRegex = /^[\d\s\-\+\(\)]+$/;
     if (!phoneRegex.test(data.phone) || data.phone.length < 10) {
         showToast('Please enter a valid phone number.', 'error');
         return false;
     }
-    
+
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.email)) {
         showToast('Please enter a valid email address.', 'error');
         return false;
     }
-    
+
     // Validate date (should not be in the past)
     const selectedDate = new Date(data.date);
     const todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
-    
+
     if (selectedDate < todayDate) {
         showToast('Please select a future date for your appointment.', 'error');
         return false;
     }
-    
+
     // Validate time
     if (!data.time) {
         showToast('Please select a preferred time.', 'error');
         return false;
     }
-    
+
     // Validate service
     if (!data.service) {
         showToast('Please select a service.', 'error');
         return false;
     }
-    
+
     // Validate place (hospital)
     if (!data.place) {
         showToast('Please select a preferred place (hospital).', 'error');
         return false;
     }
-    
+
     return true;
 }
 
 function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 }
 
@@ -367,7 +367,7 @@ function showReview(index) {
         card.classList.remove('active');
         dots[i].classList.remove('active');
     });
-    
+
     reviewCards[index].classList.add('active');
     dots[index].classList.add('active');
     currentReview = index;
@@ -433,15 +433,15 @@ document.addEventListener('keydown', (e) => {
 // ============================================
 faqItems.forEach((item, index) => {
     const question = item.querySelector('.faq-question');
-    
+
     question.addEventListener('click', () => {
         const isActive = item.classList.contains('active');
-        
+
         // Close all FAQ items
         faqItems.forEach(faqItem => {
             faqItem.classList.remove('active');
         });
-        
+
         // Open clicked item if it wasn't active
         if (!isActive) {
             item.classList.add('active');
@@ -455,21 +455,21 @@ faqItems.forEach((item, index) => {
 function showToast(message, type = 'info', duration = 3000) {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     const icons = {
         success: 'fa-check-circle',
         error: 'fa-exclamation-circle',
         warning: 'fa-exclamation-triangle',
         info: 'fa-info-circle'
     };
-    
+
     const titles = {
         success: 'Success!',
         error: 'Error!',
         warning: 'Warning!',
         info: 'Info'
     };
-    
+
     toast.innerHTML = `
         <i class="fas ${icons[type] || icons.info}"></i>
         <div class="toast-content">
@@ -477,9 +477,9 @@ function showToast(message, type = 'info', duration = 3000) {
             <p>${message}</p>
         </div>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     // Remove toast after duration
     setTimeout(() => {
         toast.style.animation = 'slideOutRight 0.3s ease forwards';
@@ -555,12 +555,12 @@ document.querySelectorAll('.stat-item').forEach(stat => {
 // ============================================
 const formInputs = document.querySelectorAll('.form-group input, .form-group select, .form-group textarea');
 formInputs.forEach(input => {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
         this.parentElement.style.transform = 'scale(1.02)';
         this.parentElement.style.transition = 'transform 0.3s ease';
     });
-    
-    input.addEventListener('blur', function() {
+
+    input.addEventListener('blur', function () {
         this.parentElement.style.transform = 'scale(1)';
     });
 });
@@ -580,7 +580,7 @@ window.addEventListener('scroll', () => {
 // Add Click Animation to Service Cards
 // ============================================
 serviceCards.forEach(card => {
-    card.addEventListener('click', function() {
+    card.addEventListener('click', function () {
         this.style.transform = 'scale(0.95)';
         setTimeout(() => {
             this.style.transform = '';
@@ -594,18 +594,18 @@ serviceCards.forEach(card => {
 document.addEventListener('DOMContentLoaded', () => {
     // Set active nav link on page load
     activateNavLink();
-    
+
     // Add fade-in animation to hero content
     const heroContent = document.querySelector('.hero-content');
     if (heroContent) {
         heroContent.style.opacity = '1';
     }
-    
+
     // Initialize first review as active
     if (reviewCards.length > 0) {
         showReview(0);
     }
-    
+
     console.log('Dr. Sibtain Ul Hassan Clinic website loaded successfully!');
 });
 
@@ -622,8 +622,40 @@ const GALLERY_ALBUMS = [
     { id: 'events', title: 'Events', cover: 'images/singapore.jpeg', images: ['images/singapore.jpeg'] },
     { id: 'team', title: 'Team', cover: 'images/turkey.jpeg', images: ['images/turkey.jpeg'] },
     { id: 'facilities', title: 'Facilities', cover: 'images/mentor.jpeg', images: ['images/mentor.jpeg'] },
-    { id: 'patient-care', title: 'Patient Care', cover: 'images/washington/img1.jpeg', images: ['images/washington/img1.jpeg', 'images/washington/img2.jpeg', 'images/washington/img3.jpeg', 'images/washington/img4.jpeg', 'images/washington/img5.jpeg', 'images/washington/img6.jpeg', 'images/washington/img7.jpeg' ] },
-    { id: 'certifications', title: 'Certifications', cover: 'images/cert1.jpeg', images: ['images/cert1.jpeg', 'images/cert2.jpeg'] }
+    { id: 'patient-care', title: 'Patient Care', cover: 'images/washington/img1.jpeg', images: ['images/washington/img1.jpeg', 'images/washington/img2.jpeg', 'images/washington/img3.jpeg', 'images/washington/img4.jpeg', 'images/washington/img5.jpeg', 'images/washington/img6.jpeg', 'images/washington/img7.jpeg'] },
+    { id: 'certifications', title: 'Certifications', cover: 'images/cert1.jpeg', images: ['images/cert1.jpeg', 'images/cert2.jpeg'] },
+    {
+        id: 'european-obesity-2026',
+        title: 'European Congress on Obesity 2026',
+        cover: 'images/europe/img1.jpeg',
+        images: [
+            'images/europe/img1.jpeg',
+            'images/europe/img2.jpeg',
+            'images/europe/img3.jpeg',
+            'images/europe/img4.jpeg',
+            'images/europe/img5.jpeg',
+            'images/europe/img6.jpeg',
+            'images/europe/img7.jpeg',
+            'images/europe/img8.jpeg',
+            'images/europe/img9.jpeg'
+        ]
+    },
+    {
+        id: 'melbourne-conference',
+        title: 'International Diabetes Federation & Australian Diabetes Conference Melbourne 2026',
+        cover: 'images/melb/img1.jpeg',
+        images: [
+            'images/melb/img1.jpeg',
+            'images/melb/img2.jpeg',
+            'images/melb/img3.jpeg',
+            'images/melb/img4.jpeg',
+            'images/melb/img5.jpeg',
+            'images/melb/img6.jpeg',
+            'images/melb/img7.jpeg',
+            'images/melb/img8.jpeg'
+        ]
+    }
+
 ];
 
 (function initGallery() {
